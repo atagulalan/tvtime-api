@@ -17,22 +17,16 @@ function getShows () {
 
     util.get(`/en/user/${userId}/profile`)
       .then(resp => {
-        const bodyParse = cheerio.load(resp.body)
-
-        bodyParse('ul.shows-list li.first-loaded')
+        cheerio.load(resp.body, { decodeEntities: false })('script')
           .each((index, item) => {
-            let li = cheerio.load(item)
-            let linkSerie = li('div.poster-details a')
-            let imgSerie = li('div.image-crop img')
-
-            listShows.push({
-              id: linkSerie.attr('href').split('/')[3],
-              name: linkSerie.text().trim(),
-              img: imgSerie.attr('src')
-            })
+            const match = cheerio.load(item, { decodeEntities: false }).html().match(/shows : \'(.*)\',/)
+            if (match) {
+              resolve(JSON.parse(
+                bodyParse('<textarea />').html(match[1]).text().toString()
+                  .replace(/\\"/g, '"').replace(/\\'/g, "'")
+              ));
+            }
           })
-
-        resolve(listShows)
       })
       .catch(err => {
         reject(err)
