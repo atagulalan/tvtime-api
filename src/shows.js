@@ -15,9 +15,14 @@ function getShows () {
     }
     const userId = util.getUser()
 
+    if (userId === 0) {
+      reject("User not found")
+    }
+
     util.get(`/en/user/${userId}/profile`)
       .then(resp => {
-        cheerio.load(resp.body, { decodeEntities: false })('script')
+        const bodyParse = cheerio.load(resp.body, { decodeEntities: false })
+        bodyParse('script')
           .each((index, item) => {
             const match = cheerio.load(item, { decodeEntities: false }).html().match(/shows : \'(.*)\',/)
             if (match) {

@@ -32,10 +32,7 @@ async function setCookie (callback, obj, remove = false) {
 
     fs.write(d, JSON.stringify(setting, null, '\t'), 0, 'utf-8', err => {
       if (err) return err
-
-      let txt = remove ? 'Credenciales eliminadas' : 'Credenciales almacenadas'
-
-      callback(txt)
+      callback(remove ? 'Deleting credentials...' : 'Storing credentials...')
     })
   })
 }
@@ -52,11 +49,8 @@ function removeAccess () {
   })
 }
 
-function isLogin () {
-  if (getCookies().tvstRemember !== undefined) {
-    return true
-  }
-  return false
+function isLogin() {
+  return !!getCookies().tvstRemember
 }
 
 function get (urlPath, data) {

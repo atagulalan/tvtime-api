@@ -8,10 +8,9 @@ const utils = require('./utils')
  * @param {boolean} force
  */
 function login (user, passw, force = false) {
-
   return new Promise((resolve, reject) => {
     if (utils.isLogin() && !force) {
-      resolve('User is login')
+      resolve('Using stored credentials...')
       return
     }
 
@@ -19,15 +18,8 @@ function login (user, passw, force = false) {
       'username': user,
       'password': passw
     })
-    .then(_ => {
-      getUser()
-        .then(r => {
-          resolve(r)
-        })
-      })
-    .catch(err => {
-      reject(err)
-    })
+    .then(_ => getUser().then(resolve).catch(reject))
+    .catch(reject)
   })
 }
 
@@ -36,20 +28,17 @@ function login (user, passw, force = false) {
  */
 function getUser () {
   return new Promise((resolve, reject) => {
-    if (!utils.isLogin) {
-      resolve('User no login')
+    if (!utils.isLogin()) {
+      reject('Couldn\'t login.')
       return
     }
-
     utils.get('/en')
       .then(resp => {
         let body = cheerio.load(resp.body)
-
         let linkProfile = body('li.profile a').attr('href').split('/')
-        utils.setUser(r => {
-          resolve(r)
-        }, linkProfile[3])
+        utils.setUser(resolve, linkProfile[3])
       })
+      .catch(reject)
   })
 }
 
@@ -57,9 +46,8 @@ function getUser () {
  * Exit
  */
 function signOut () {
-  if (!utils.isLogin()) {
-    return 'User no login'
-  }
+  if (!utils.isLogin())
+    return new Promise((res,rej)=>rej('Already logged out.'))
 
   return utils.get('/signout')
 }
