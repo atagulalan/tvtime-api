@@ -75,8 +75,9 @@ function getShow (serieId = 0) {
               episodios.push({
                 id: idEpisode[5],
                 name: nameEpisode,
+                aired: !li.attribs.class.split(" ").includes("future"),
                 airDate: airEpisode,
-                watched: episodeWatched
+                watched: episodeWatched,
               })
             })
 
